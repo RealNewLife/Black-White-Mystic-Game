@@ -1,63 +1,69 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-
-public class playercontroller : MonoBehaviour
+public class controllerPlayer : MonoBehaviour
 {
-    public float speed;
-    float x, sx;
+    [SerializeField]
+    private int playerIndex = 0;
+
+    [SerializeField]
+    private float speed = 0;
+
+    float  sx;
     Rigidbody2D rb;
     int jump;
 
-    private bool isGround,isjumpPad;
-    public Transform groundCheck;
     public float checkRadius;
-    public LayerMask whatIsGround,jumpPad;
+    public Transform groundCheck;
+    public LayerMask whatIsGround;
+    private bool isGround;
     public float jumpForce;
-    void Start()
+    private Vector2 inputVector = Vector2.zero;
+
+    public void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         sx = transform.localScale.x;
         jump = 2;
     }
-
-
     void FixedUpdate()
     {
         isGround = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
-        x = Input.GetAxis("Horizontal");
-        isjumpPad = Physics2D.OverlapCircle(groundCheck.position, checkRadius, jumpPad);
-        rb.velocity = new Vector2(x * speed, rb.velocity.y);
-
-        if (x > 0)
+        rb.velocity = new Vector2(inputVector.x * speed, rb.velocity.y);
+        if (inputVector.x > 0)
         {
             transform.localScale = new Vector3(sx, transform.localScale.y, transform.localScale.z);
         }
-        if (x< 0)
+        if (inputVector.x < 0)
         {
             transform.localScale = new Vector3(-sx, transform.localScale.y, transform.localScale.z);
         }
+
     }
-    private void Update()
+
+    public int GetPlayerIndex()
     {
-        if(isGround == true )
+        return playerIndex;
+    }
+
+    public void SetInputVector(Vector2 direction)
+    {
+        inputVector.x = direction.x;
+    }
+
+    public void SetInputJump(bool jump1)
+    {
+        if (isGround == true)
         {
             jump = 1;
         }
-        if(Input.GetButtonDown("Jump") && jump > 0)
+        if (jump1 && jump > 0)
         {
             rb.velocity = Vector2.up * jumpForce;
             jump--;
         }
-        if (isjumpPad == true)
-        {
-            jump = 1;
-        }
-        if (Input.GetButtonDown("Jump") && jump > 0)
-        {
-            rb.velocity = Vector2.up * (jumpForce + 4);
-            jump--;
-        }
     }
+
 }
